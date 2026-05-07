@@ -9,4 +9,4 @@ if( ! env.BRANCH_NAME.equalsIgnoreCase('main')) {
    NodejsEKSPipeline(configMap)
 } else{ 
    echo "Continue With CR Process" 
-} 
+}
