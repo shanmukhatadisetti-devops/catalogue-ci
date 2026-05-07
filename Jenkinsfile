@@ -76,5 +76,14 @@ pipeline {
                 }
             }
         }
+        stage('Trivy Scanning'){
+            steps{
+                script{
+                    sh"""
+                         trivy image --pkg-types os --scanners vuln --severity HIGH,CRITICAL,MEDIUM --exit-code 1 --ignore-unfixed ${ACC_ID}.dkr.ecr.${REGION}.amazonaws.com/${PROJECT}/${COMPONENT}:${appVersion}
+                    """
+                }
+            }
+        }
     }
 } 
