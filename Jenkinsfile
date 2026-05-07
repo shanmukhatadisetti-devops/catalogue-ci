@@ -6,7 +6,7 @@ def configMap = [
     ]
 
 if( ! env.BRANCH_NAME.equalsIgnoreCase('main')) { 
-   NodejsEKSPipeline(configMap)
+   NodejsEKSPipelines(configMap)
 } else{ 
    echo "Continue With CR Process" 
 }
