@@ -8,6 +8,7 @@ pipeline {
         ACC_ID = "430774481266"
         PROJECT = "roboshop"
         COMPONENT = "catalogue"
+        GITHUB_REPO = "shanmukhatadisetti-devops/catalogue-ci"
 
     }
     options{
@@ -30,6 +31,35 @@ pipeline {
                     sh """
                         npm install
                     """
+                }
+            }
+        }        
+        stage('Check Dependabot Alerts') {
+            steps {
+                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+
+                    sh '''
+                    echo "Checking Dependabot alerts..."
+
+                    RESPONSE=$(curl -s -L \
+                      -H "Accept: application/vnd.github+json" \
+                      -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+                      -H "X-GitHub-Api-Version: 2022-11-28" \
+                      https://api.github.com/repos/${GITHUB_REPO}/dependabot/alerts)
+
+                    echo "$RESPONSE" > dependabot-alerts.json
+
+                    COUNT=$(echo "$RESPONSE" | jq '[.[] | select(.state=="open" and (.security_vulnerability.severity=="high" or .security_vulnerability.severity=="critical"))] | length')
+
+                    echo "High/Critical open alerts count: $COUNT"
+
+                    if [ "$COUNT" -gt 0 ]; then
+                        echo "Build failed due to HIGH/CRITICAL Dependabot alerts"
+                        exit 1
+                    else
+                        echo "No blocking Dependabot alerts found"
+                    fi
+                    '''
                 }
             }
         }
